@@ -32,7 +32,7 @@ The sampling methodology aims to ensure diversity across categories while mainta
 ### 1. FineWeb-Edu (Pre-training)
 **1.3 trillion tokens of high-quality educational web content**
 
-FineWeb-Edu is a carefully filtered subset of CommonCrawl web data, processed through a custom educational quality classifier trained using Llama3-70B-Instruct annotations. The dataset filters out 92% of raw web data, retaining only content scoring 3+ on a 0-5 educational quality scale, resulting in exceptional performance on knowledge-intensive benchmarks compared to other open web datasets. Covers 96 CommonCrawl snapshots from 2013-2024 with extensive deduplication and quality filtering.
+FineWeb-Edu is a carefully filtered subset of CommonCrawl web data, processed through a custom educational quality classifier trained using Llama3-70B-Instruct annotations. The dataset filters out 92% of raw web data, retaining only content scoring 3+ on a 0-5 educational quality scale, resulting in exceptional performance on knowledge-intensive benchmarks compared to other open web datasets. Covers 96 CommonCrawl snapshots from 2013-2024 with extensive deduplication and quality filtering. Here, we limit to 99M rows specifically from those sourced in 2025: CC-MAIN-2025-05, CC-MAIN-2025-08, CC-MAIN-2025-13, CC-MAIN-2025-18, CC-MAIN-2025-21, and CC-MAIN-2025-26.
 
 ### 2. Proof-Pile-2 (Pre-training - Math/Science)
 **55 billion tokens of mathematical and scientific documents**
