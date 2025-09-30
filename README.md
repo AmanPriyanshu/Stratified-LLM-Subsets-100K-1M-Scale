@@ -1,0 +1,2 @@
+# Stratified-LLM-Subsets-Pre-Training-Instruction-Following-and-Reasoning-SFT-data-at-100K-1M-Scale
+Stratified LLM Subsets delivers balanced training data at 100K-1M scales across pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning distillation (Nemotron, AM-DeepSeek). Square-root balancing prevents category dominance while maintaining diversity across 6 high-quality open datasets.
