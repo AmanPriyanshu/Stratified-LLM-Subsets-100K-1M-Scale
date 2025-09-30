@@ -8,7 +8,7 @@ Stratified LLM Subsets delivers balanced training data at 100K-1M scales across 
 
 This project aims to create **diverse, representative subsets** from large-scale training corpora across multiple domains. By intelligently sampling from six high-quality datasets spanning pre-training, instruction-following, and reasoning tasks, we generate balanced subsets at multiple scales:
 
-- **25k, 50k, 125k, 250k, and 500k samples per dataset, except Nemotron**
+- **25k, 50k, 125k, 250k, and 500k samples per dataset, except Nemotron which directly include sizes equivalent to total scales**
 - **Total scales: 50k, 100k, 250k, 500k, and 1M samples across all tasks**
 
 The sampling methodology aims to ensure diversity across categories while maintaining representativeness of the source distributions through square-root balancing techniques.
