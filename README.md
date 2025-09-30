@@ -1,6 +1,6 @@
 # Stratified LLM Subsets: Pre-Training, Instruction-Following, and Reasoning SFT data at 100K-1M Scale
 
-Stratified LLM Subsets delivers balanced training data at 100K-1M scales across pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning distillation (Nemotron, AM-DeepSeek). Square-root balancing prevents category dominance while maintaining diversity across 6 high-quality open datasets.
+Stratified LLM Subsets delivers balanced training data at 100K-1M scales across pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning distillation (Nemotron). Square-root balancing prevents category dominance while maintaining diversity across 5 high-quality open datasets.
 
 ---
 
@@ -8,10 +8,10 @@ Stratified LLM Subsets delivers balanced training data at 100K-1M scales across 
 
 This project aims to create **diverse, representative subsets** from large-scale training corpora across multiple domains. By intelligently sampling from six high-quality datasets spanning pre-training, instruction-following, and reasoning tasks, we generate balanced subsets at multiple scales:
 
-- **25k, 50k, 125k, 250k, and 500k samples per task**
+- **25k, 50k, 125k, 250k, and 500k samples per dataset, except Nemotron**
 - **Total scales: 50k, 100k, 250k, 500k, and 1M samples across all tasks**
 
-The sampling methodology ensures diversity across categories while maintaining representativeness of the source distributions through square-root balancing techniques.
+The sampling methodology aims to ensure diversity across categories while maintaining representativeness of the source distributions through square-root balancing techniques.
 
 ---
 
@@ -24,7 +24,6 @@ The sampling methodology ensures diversity across categories while maintaining r
 | Tulu-3 SFT Mixture | Instruction-following | [HuggingFace](https://huggingface.co/datasets/allenai/tulu-3-sft-mixture) | ODC-BY 1.0 |
 | Orca AgentInstruct 1M v1 | Instruction-following | [HuggingFace](https://huggingface.co/datasets/microsoft/orca-agentinstruct-1M-v1) | CDLA-Permissive 2.0 |
 | Nemotron Post-Training v1 | Post-training reasoning | [HuggingFace](https://huggingface.co/datasets/nvidia/Nemotron-Post-Training-Dataset-v1) | CC BY 4.0 |
-| AM-DeepSeek-R1-0528 | Post-training reasoning | [HuggingFace](https://huggingface.co/datasets/a-m-team/AM-DeepSeek-R1-0528-Distilled) | Research-Only |
 
 ---
 
@@ -55,18 +54,13 @@ A large-scale instruction dataset created by Microsoft using an agentic framewor
 
 NVIDIA's comprehensive post-training dataset emphasizing verifiable reasoning and specialized capabilities across five distinct categories with a strong focus on STEM content. High-quality synthetic data generation with permissive CC BY 4.0 license.
 
-### 6. AM-DeepSeek-R1-0528 (Post-training reasoning)
-**2.6 million reasoning traces from DeepSeek-R1-0528**
-
-A high-quality reasoning corpus distilled from DeepSeek-R1-0528, featuring detailed step-by-step reasoning traces structured with explicit `<think>` and `<answer>` tags. The dataset emphasizes verifiable reasoning across mathematics, code, science, and general domains, with all outputs verified for correctness. All outputs verified through Math-Verify, test cases, LLM scoring, and reward models, with PPL filtering and repetition detection applied. **Research-only license** (non-commercial).
-
 ---
 
 ## Sampling Methodology
 
 ### Category-Aware Balanced Sampling
 
-For datasets with pre-existing category splits (**Nemotron**, **AM-DeepSeek**, and **Proof-Pile-2**), we apply a **square-root balancing transformation** to prevent over-representation of dominant categories while maintaining category signal.
+For datasets with pre-existing category splits (**Nemotron** and **Proof-Pile-2**), we apply a **square-root balancing transformation** to prevent over-representation of dominant categories while maintaining category signal.
 
 #### Nemotron Category Rebalancing (End-to-End Example)
 
@@ -131,18 +125,9 @@ This transformation:
 - Maintains relative ordering while improving balance
 - Preserves category diversity signals through principled reweighting
 
-#### AM-DeepSeek and Proof-Pile-2 Category Balancing
+#### Proof-Pile-2 Category Balancing
 
 The same square-root balancing methodology is applied to:
-
-**AM-DeepSeek-R1-0528 categories:**
-- `chat` (multiturn conversations)
-- `code` (programming tasks)
-- `if` (instruction following)
-- `math` (mathematical reasoning)
-- `multiturn` (extended dialogues)
-- `other` (miscellaneous tasks)
-- `science` (scientific reasoning)
 
 **Proof-Pile-2 subsets:**
 - `algebraic-stack` (mathematical code)
@@ -151,11 +136,7 @@ The same square-root balancing methodology is applied to:
 
 ### Unified Corpus Sampling
 
-For datasets without pre-existing category splits (**FineWeb-Edu**, **Tulu-3**, **Orca AgentInstruct**), we treat them as unified corpora and sample uniformly across all examples while maintaining diversity through:
-
-- Random stratified sampling
-- Deduplication checks
-- Quality filtering preservation
+For datasets without pre-existing category splits (**FineWeb-Edu**, **Tulu-3**, **Orca AgentInstruct**), we treat them as unified corpora and sample uniformly across all examples while maintaining diversity through Random stratified sampling.
 
 ---
 
@@ -163,7 +144,7 @@ For datasets without pre-existing category splits (**FineWeb-Edu**, **Tulu-3**, 
 
 We generate multiple scales of balanced subsets to support various training scenarios:
 
-| Per-Task Size | Total Multi-Task Size | Use Case |
+| Per-Dataset Size | Total Task Size | Use Case |
 |---------------|---------------------|----------|
 | 25k | 50k | Rapid prototyping, ablations |
 | 50k | 100k | Small-scale fine-tuning |
@@ -173,9 +154,7 @@ We generate multiple scales of balanced subsets to support various training scen
 
 Each subset maintains:
 - Balanced category representation (where applicable)
-- Diversity across all source datasets
-- Verification/quality filtering from original corpora
-- Proper licensing and attribution
+- Diversity across all source datasets (however, we take task size values directly for Nemotron as that's the only reasoning dataset we incorporate.)
 
 ---
 
