@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratified LLM Subsets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e8eef3;
+            min-height: 100vh;
+            color: #56627e;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #56627e;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #56627e;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .datasets-label {
+            font-size: 1rem;
+            color: #56627e;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .datasets-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto 25px;
+        }
+
+        .dataset-btn {
+            background: #56627e;
+            color: white;
+            padding: 14px 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dataset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(86, 98, 126, 0.3);
+            background: #647089;
+        }
+
+        .links-label {
+            font-size: 0.9rem;
+            color: #56627e;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .links-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .link-btn {
+            background: #f5b4b1;
+            color: #56627e;
+            padding: 10px 8px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 2.2vw, 0.9rem);
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 180, 177, 0.4);
+            background: #f7c4c1;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-tab {
+            padding: 12px 30px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #56627e;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #f5b4b1;
+            color: #56627e;
+        }
+
+        .selected-point-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+            margin-bottom: 30px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .selected-point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .selected-point-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #56627e;
+        }
+
+        .close-btn {
+            background: #f5b4b1;
+            color: #56627e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px);
+            background: #f7c4c1;
+        }
+
+        .point-content {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 15px;
+            line-height: 1.7;
+            color: #56627e;
+            font-size: 0.95rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .point-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .point-content::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .point-content::-webkit-scrollbar-thumb {
+            background: #f5b4b1;
+            border-radius: 10px;
+        }
+
+        .point-section {
+            margin-bottom: 15px;
+        }
+
+        .point-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .point-label {
+            font-weight: 700;
+            color: #56627e;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .point-text {
+            color: #56627e;
+            opacity: 0.9;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .viz-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+        }
+
+        .viz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .viz-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #56627e;
+        }
+
+        .viz-info {
+            font-size: 0.9rem;
+            color: #56627e;
+            opacity: 0.7;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #fafafa;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #viz-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        #viz-canvas:active {
+            cursor: grabbing;
+        }
+
+        .canvas-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(86, 98, 126, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #56627e;
+            margin-bottom: 15px;
+        }
+
+        .card-content {
+            line-height: 1.8;
+            color: #56627e;
+            font-size: 0.95rem;
+        }
+
+        .card-content strong {
+            font-weight: 600;
+        }
+
+        .clusters-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .clusters-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .clusters-list::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .clusters-list::-webkit-scrollbar-thumb {
+            background: #f5b4b1;
+            border-radius: 10px;
+        }
+
+        .cluster-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #fafafa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .cluster-item:hover {
+            background: white;
+            border-left-color: #f5b4b1;
+            transform: translateX(3px);
+        }
+
+        .cluster-item.active {
+            background: white;
+            border-left-color: #56627e;
+            transform: translateX(3px);
+        }
+
+        .cluster-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #56627e;
+            margin-bottom: 3px;
+        }
+
+        .cluster-count {
+            font-size: 0.8rem;
+            color: #56627e;
+            opacity: 0.6;
+        }
+
+        .citation-box {
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .citation-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            color: #56627e;
+            white-space: pre-wrap;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            background: #f5b4b1;
+            color: #56627e;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            background: #f7c4c1;
+        }
+
+        .sources-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .source-item {
+            font-size: 0.92rem;
+            color: #56627e;
+        }
+
+        .source-link {
+            color: #56627e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .source-link:hover {
+            color: #f5b4b1;
+            text-decoration: underline;
+        }
+
+        .authors-section {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(86, 98, 126, 0.08);
+        }
+
+        .authors-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #56627e;
+            margin-bottom: 25px;
+        }
+
+        .authors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .author {
+            text-align: center;
+        }
+
+        .author-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #56627e;
+            margin-bottom: 12px;
+        }
+
+        .author-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .author-link {
+            background: #f5b4b1;
+            color: #56627e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .author-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(245, 180, 177, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .authors-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            .datasets-row {
+                grid-template-columns: 1fr;
+            }
+            .links-row {
+                grid-template-columns: 1fr;
+            }
+            .nav-tabs {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Stratified LLM Subsets</h1>
+            <p class="subtitle">Balanced Training Data at 100K-1M Scale</p>
+            
+            <div class="datasets-label">Check out the datasets:</div>
+            <div class="datasets-row">
+                <a href="https://huggingface.co/datasets/AmanPriyanshu/stratified-kmeans-diverse-pretraining-100K-1M" class="dataset-btn">Pre-Training</a>
+                <a href="https://huggingface.co/datasets/AmanPriyanshu/stratified-kmeans-diverse-instruction-following-100K-1M" class="dataset-btn">Instruction-Following</a>
+                <a href="https://huggingface.co/datasets/AmanPriyanshu/stratified-kmeans-diverse-reasoning-100K-1M" class="dataset-btn">Reasoning</a>
+            </div>
+            
+            <div class="links-label">Important Links:</div>
+            <div class="links-row">
+                <a href="https://github.com/amanpriyanshu/Stratified-LLM-Subsets-100K-1M-Scale" class="link-btn">GitHub</a>
+                <a href="https://amanpriyanshu.github.io/" class="link-btn">Aman</a>
+                <a href="https://supritivijay.github.io/" class="link-btn">Supriti</a>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-dataset="reasoning">Reasoning (50k)</button>
+            <button class="nav-tab" data-dataset="pretraining">Pre-Training (50k)</button>
+            <button class="nav-tab" data-dataset="instruction">Instruction (50k)</button>
+        </div>
+
+        <div id="selectedPointContainer"></div>
+
+        <div class="main-content">
+            <div class="viz-section">
+                <div class="viz-header">
+                    <h2 class="viz-title">Interactive Cluster Visualization</h2>
+                    <div class="viz-info">100 clusters • k-means + UMAP</div>
+                </div>
+                <div id="canvas-container">
+                    <canvas id="viz-canvas"></canvas>
+                    <div class="canvas-hint">Hover samples • Drag to pan • Scroll to zoom • Click to view</div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <h3>Project Overview</h3>
+                    <div class="card-content">
+                        This project addresses the critical challenge of creating balanced, diverse training datasets for large language models. Unlike random sampling, we use embedding-based k-means clustering with Snowflake Arctic-embed-xs to ensure maximum diversity across semantic clusters.
+                        <br><br>
+                        <strong>Key Innovation:</strong> Square-root balancing prevents category dominance (e.g., reducing STEM from 80% to 52% in reasoning data) while maintaining representational diversity.
+                        <br><br>
+                        <strong>Impact:</strong> Provides researchers with ready-to-use, balanced datasets across pre-training, instruction-following, and reasoning domains.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Clusters</h3>
+                    <div class="clusters-list" id="clustersList">
+                        <div style="text-align: center; padding: 20px; opacity: 0.6;">Loading clusters...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px;">
+            <h3>Citation</h3>
+            <div class="citation-box">
+                <div class="citation-text">@misc{priyanshu2025stratifiedllm,
+  title={{Stratified LLM Subsets: Pre-Training, Instruction-Following, and Reasoning SFT Data at 100K-1M Scale}},
+  author={Priyanshu, Aman and Vijay, Supriti},
+  year={2025},
+  howpublished={\url{https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/}},
+  note={Available at \url{https://huggingface.co/datasets/AmanPriyanshu/stratified-kmeans-diverse-reasoning-100K-1M}}
+}</div>
+                <button class="copy-btn" id="copyBtn">Copy BibTeX</button>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 40px;">
+            <h3>Original Sources</h3>
+            <div class="sources-list">
+                <div class="source-item">• <a href="https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu" class="source-link">FineWeb-Edu</a></div>
+                <div class="source-item">• <a href="https://huggingface.co/datasets/EleutherAI/proof-pile-2" class="source-link">Proof-Pile-2</a></div>
+                <div class="source-item">• <a href="https://huggingface.co/datasets/allenai/tulu-3-sft-mixture" class="source-link">Tulu-3 SFT</a></div>
+                <div class="source-item">• <a href="https://huggingface.co/datasets/microsoft/orca-agentinstruct-1M-v1" class="source-link">Orca AgentInstruct</a></div>
+                <div class="source-item">• <a href="https://huggingface.co/datasets/nvidia/Llama-Nemotron-Post-Training-Dataset" class="source-link">Llama-Nemotron</a></div>
+            </div>
+        </div>
+
+        <div class="authors-section">
+            <h2 class="authors-title">Authors</h2>
+            <div class="authors-grid">
+                <div class="author">
+                    <div class="author-name">Aman Priyanshu</div>
+                    <div class="author-links">
+                        <a href="https://www.linkedin.com/in/aman-priyanshu/" class="author-link">LinkedIn</a>
+                        <a href="https://x.com/AmanPriyanshu6" class="author-link">Twitter</a>
+                        <a href="https://amanpriyanshu.github.io/" class="author-link">Website</a>
+                    </div>
+                </div>
+                <div class="author">
+                    <div class="author-name">Supriti Vijay</div>
+                    <div class="author-links">
+                        <a href="https://www.linkedin.com/in/supriti-vijay/" class="author-link">LinkedIn</a>
+                        <a href="https://x.com/SupritiVijay" class="author-link">Twitter</a>
+                        <a href="https://supritivijay.github.io/" class="author-link">Website</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+(function() {
+    var realData = {};
+    var currentDataset = 'reasoning';
+    var canvas, ctx, viewOffset = {x:0, y:0}, zoomLevel = 1;
+    var isDragging = false, dragStartPos = null, lastMouse = {x:0, y:0};
+    var hoveredPoint = null, tooltip = null;
+    var clusterColors = {};
+    var selectedCluster = null;
+    var selectedPoint = null;
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function generateColor(index, total) {
+        var hue = (index / total) * 360;
+        var sat = 65 + (index % 3) * 10;
+        var light = 55 + (index % 2) * 5;
+        return 'hsl(' + hue + ', ' + sat + '%, ' + light + '%)';
+    }
+
+    function initColors(data) {
+        clusterColors = {};
+        var clusters = Object.keys(data.clusters);
+        for(var i = 0; i < clusters.length; i++) {
+            clusterColors[clusters[i]] = generateColor(i, clusters.length);
+        }
+    }
+
+    function getData() {
+        var m = {reasoning:'reasoning', pretraining:'pretraining', instruction:'instruction_following'};
+        return realData[m[currentDataset]];
+    }
+
+    function loadDataset(name) {
+        fetch('https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/topic_analysis_' + name + '_50k.json')
+        .then(function(r){return r.json()})
+        .then(function(data){
+            realData[name] = data;
+            if(name === 'reasoning') {
+                initColors(data);
+                renderClusters();
+                draw();
+            }
+        })
+        .catch(function(err){console.error('Failed to load ' + name, err)});
+    }
+
+    function draw() {
+        if(!canvas || !ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(viewOffset.x, viewOffset.y);
+        ctx.scale(zoomLevel, zoomLevel);
+
+        var d = getData();
+        if(!d || !d.clusters) {ctx.restore(); return;}
+
+        for(var cid in d.clusters) {
+            if(selectedCluster && cid !== selectedCluster) continue;
+            
+            var cl = d.clusters[cid];
+            var color = clusterColors[cid];
+
+            if(cl.sampled_coordinates) {
+                for(var i=0; i<cl.sampled_coordinates.length; i++) {
+                    var coord = cl.sampled_coordinates[i];
+                    var x = coord[0] * canvas.width;
+                    var y = coord[1] * canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2*Math.PI);
+                    ctx.fillStyle = color;
+                    ctx.globalAlpha = 0.6;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            if(cl.sampled_points_with_text) {
+                for(var i=0; i<cl.sampled_points_with_text.length; i++) {
+                    var pt = cl.sampled_points_with_text[i];
+                    var x = pt.coordinates[0] * canvas.width;
+                    var y = pt.coordinates[1] * canvas.height;
+                    var isHov = hoveredPoint === pt;
+                    var isSel = selectedPoint === pt;
+
+                    if(isHov || isSel) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, 2*Math.PI);
+                        ctx.fillStyle = color;
+                        ctx.globalAlpha = 0.3;
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, (isHov || isSel) ? 6 : 5, 0, 2*Math.PI);
+                    ctx.fillStyle = (isHov || isSel) ? '#fff' : color;
+                    ctx.fill();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+
+            if(cl.sampled_coordinates && cl.sampled_coordinates.length > 0) {
+                var avgX = 0, avgY = 0;
+                for(var i=0; i<cl.sampled_coordinates.length; i++) {
+                    avgX += cl.sampled_coordinates[i][0];
+                    avgY += cl.sampled_coordinates[i][1];
+                }
+                avgX = (avgX / cl.sampled_coordinates.length) * canvas.width;
+                avgY = (avgY / cl.sampled_coordinates.length) * canvas.height;
+                ctx.fillStyle = '#56627e';
+                ctx.font = 'bold ' + (12 / zoomLevel) + 'px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(cl.label, avgX, avgY - 10);
+            }
+        }
+
+        ctx.restore();
+    }
+
+    function findHovered(mx, my) {
+        var d = getData();
+        if(!d || !d.clusters) return null;
+        for(var cid in d.clusters) {
+            if(selectedCluster && cid !== selectedCluster) continue;
+            var cl = d.clusters[cid];
+            if(cl.sampled_points_with_text) {
+                for(var i=0; i<cl.sampled_points_with_text.length; i++) {
+                    var pt = cl.sampled_points_with_text[i];
+                    var x = pt.coordinates[0] * canvas.width;
+                    var y = pt.coordinates[1] * canvas.height;
+                    var dist = Math.sqrt((mx-x)*(mx-x) + (my-y)*(my-y));
+                    if(dist <= 5 / zoomLevel) return pt;
+                }
+            }
+        }
+        return null;
+    }
+
+    function showTooltip(x, y, pt) {
+        var text = '';
+        if(pt.input) {
+            var inp = pt.input[0] ? pt.input[0].content : '';
+            var out = pt.output || '';
+            text = 'Input: ' + inp.substring(0,100) + (inp.length>100?'...':'') + '\n\nOutput: ' + out.substring(0,100) + (out.length>100?'...':'') + '\n\nDataset: ' + pt.dataset_name;
+        } else if(pt.messages) {
+            var msg = pt.messages[0] ? pt.messages[0].content : '';
+            text = 'Message: ' + msg.substring(0,150) + (msg.length>150?'...':'') + '\n\nDataset: ' + pt.dataset_name;
+        } else if(pt.text) {
+            text = 'Text: ' + pt.text.substring(0,150) + (pt.text.length>150?'...':'') + '\n\nDataset: ' + pt.dataset_name;
+        }
+        tooltip.textContent = text;
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y - 10) + 'px';
+        tooltip.style.display = 'block';
+    }
+
+    function hideTooltip() {
+        tooltip.style.display = 'none';
+    }
+
+    function closePointCard() {
+        var container = document.getElementById('selectedPointContainer');
+        container.innerHTML = '';
+        selectedPoint = null;
+        draw();
+    }
+
+    function showPointCard(pt) {
+        selectedPoint = pt;
+        var container = document.getElementById('selectedPointContainer');
+        var card = document.createElement('div');
+        card.className = 'selected-point-card';
+        
+        var content = '';
+        
+        if(pt.input) {
+            var inp = pt.input[0] ? pt.input[0].content : '';
+            var out = pt.output || '';
+            content = '<div class="selected-point-header">' +
+                '<div class="selected-point-title">Selected Point Details</div>' +
+                '<button class="close-btn" id="closeCardBtn">Close</button>' +
+                '</div>' +
+                '<div class="point-content">' +
+                '<div class="point-section"><div class="point-label">Input:</div><div class="point-text">' + escapeHtml(inp) + '</div></div>' +
+                '<div class="point-section"><div class="point-label">Output:</div><div class="point-text">' + escapeHtml(out) + '</div></div>' +
+                '<div class="point-section"><div class="point-label">Dataset:</div><div class="point-text">' + escapeHtml(pt.dataset_name) + '</div></div>' +
+                '</div>';
+        } else if(pt.messages) {
+            var msgs = '';
+            for(var i = 0; i < pt.messages.length; i++) {
+                var msg = pt.messages[i];
+                msgs += '<div class="point-section"><div class="point-label">' + escapeHtml(msg.role || 'Message') + ':</div><div class="point-text">' + escapeHtml(msg.content || '') + '</div></div>';
+            }
+            content = '<div class="selected-point-header">' +
+                '<div class="selected-point-title">Selected Point Details</div>' +
+                '<button class="close-btn" id="closeCardBtn">Close</button>' +
+                '</div>' +
+                '<div class="point-content">' +
+                msgs +
+                '<div class="point-section"><div class="point-label">Dataset:</div><div class="point-text">' + escapeHtml(pt.dataset_name) + '</div></div>' +
+                '</div>';
+        } else if(pt.text) {
+            content = '<div class="selected-point-header">' +
+                '<div class="selected-point-title">Selected Point Details</div>' +
+                '<button class="close-btn" id="closeCardBtn">Close</button>' +
+                '</div>' +
+                '<div class="point-content">' +
+                '<div class="point-section"><div class="point-label">Text:</div><div class="point-text">' + escapeHtml(pt.text) + '</div></div>' +
+                '<div class="point-section"><div class="point-label">Dataset:</div><div class="point-text">' + escapeHtml(pt.dataset_name) + '</div></div>' +
+                '</div>';
+        }
+        
+        card.innerHTML = content;
+        container.innerHTML = '';
+        container.appendChild(card);
+        
+        document.getElementById('closeCardBtn').addEventListener('click', closePointCard);
+    }
+
+    function renderClusters() {
+        var list = document.getElementById('clustersList');
+        var d = getData();
+        if(!d || !d.clusters) return;
+        list.innerHTML = '';
+        for(var cid in d.clusters) {
+            var cl = d.clusters[cid];
+            var item = document.createElement('div');
+            item.className = 'cluster-item';
+            if(selectedCluster === cid) item.classList.add('active');
+            item.innerHTML = '<div class="cluster-name">' + cl.label + '</div><div class="cluster-count">' + cl.size.toLocaleString() + ' samples</div>';
+            item.setAttribute('data-cluster-id', cid);
+            (function(clusterId) {
+                item.addEventListener('click', function() {
+                    if(selectedCluster === clusterId) {
+                        selectedCluster = null;
+                        closePointCard();
+                    } else {
+                        selectedCluster = clusterId;
+                    }
+                    renderClusters();
+                    draw();
+                });
+            })(cid);
+            list.appendChild(item);
+        }
+    }
+
+    function initCanvas() {
+        canvas = document.getElementById('viz-canvas');
+        ctx = canvas.getContext('2d');
+        tooltip = document.createElement('div');
+        tooltip.style.cssText = 'position:fixed;background:rgba(86,98,126,0.95);color:white;padding:12px;border-radius:10px;font-size:12px;max-width:320px;pointer-events:none;z-index:1000;display:none;font-family:monospace;line-height:1.5;white-space:pre-wrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+        document.body.appendChild(tooltip);
+
+        function resize() {
+            var c = document.getElementById('canvas-container');
+            canvas.width = c.offsetWidth;
+            canvas.height = c.offsetHeight;
+            draw();
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        canvas.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            dragStartPos = {x: e.offsetX, y: e.offsetY};
+            lastMouse = {x: e.offsetX, y: e.offsetY};
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if(isDragging) {
+                var dx = e.offsetX - lastMouse.x;
+                var dy = e.offsetY - lastMouse.y;
+                viewOffset.x += dx;
+                viewOffset.y += dy;
+                lastMouse = {x: e.offsetX, y: e.offsetY};
+                draw();
+            } else {
+                var rect = canvas.getBoundingClientRect();
+                var mx = (e.clientX - rect.left - viewOffset.x) / zoomLevel;
+                var my = (e.clientY - rect.top - viewOffset.y) / zoomLevel;
+                var hp = findHovered(mx, my);
+                if(hp !== hoveredPoint) {
+                    hoveredPoint = hp;
+                    if(hp) showTooltip(e.clientX, e.clientY, hp);
+                    else hideTooltip();
+                    draw();
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(e) {
+            if(isDragging && dragStartPos) {
+                var dx = Math.abs(e.offsetX - dragStartPos.x);
+                var dy = Math.abs(e.offsetY - dragStartPos.y);
+                if(dx < 5 && dy < 5) {
+                    var rect = canvas.getBoundingClientRect();
+                    var mx = (e.clientX - rect.left - viewOffset.x) / zoomLevel;
+                    var my = (e.clientY - rect.top - viewOffset.y) / zoomLevel;
+                    var clickedPoint = findHovered(mx, my);
+                    if(clickedPoint) {
+                        showPointCard(clickedPoint);
+                        draw();
+                    }
+                }
+            }
+            isDragging = false;
+            dragStartPos = null;
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+            hideTooltip();
+            hoveredPoint = null;
+            isDragging = false;
+            draw();
+        });
+
+        canvas.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            var rect = canvas.getBoundingClientRect();
+            var mouseX = e.clientX - rect.left;
+            var mouseY = e.clientY - rect.top;
+            
+            var worldX = (mouseX - viewOffset.x) / zoomLevel;
+            var worldY = (mouseY - viewOffset.y) / zoomLevel;
+            
+            zoomLevel *= e.deltaY > 0 ? 0.9 : 1.1;
+            zoomLevel = Math.max(0.5, Math.min(5, zoomLevel));
+            
+            viewOffset.x = mouseX - worldX * zoomLevel;
+            viewOffset.y = mouseY - worldY * zoomLevel;
+            
+            draw();
+        });
+
+        var touchStartDist = 0;
+        var lastTouch = null;
+        
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if(e.touches.length === 1) {
+                isDragging = true;
+                var rect = canvas.getBoundingClientRect();
+                lastTouch = {x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top};
+                dragStartPos = {x: lastTouch.x, y: lastTouch.y};
+            } else if(e.touches.length === 2) {
+                isDragging = false;
+                var dx = e.touches[0].clientX - e.touches[1].clientX;
+                var dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchStartDist = Math.sqrt(dx * dx + dy * dy);
+            }
+        });
+        
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if(e.touches.length === 1 && isDragging && lastTouch) {
+                var rect = canvas.getBoundingClientRect();
+                var touchX = e.touches[0].clientX - rect.left;
+                var touchY = e.touches[0].clientY - rect.top;
+                var dx = touchX - lastTouch.x;
+                var dy = touchY - lastTouch.y;
+                viewOffset.x += dx;
+                viewOffset.y += dy;
+                lastTouch = {x: touchX, y: touchY};
+                draw();
+            } else if(e.touches.length === 2) {
+                var dx = e.touches[0].clientX - e.touches[1].clientX;
+                var dy = e.touches[0].clientY - e.touches[1].clientY;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                
+                var rect = canvas.getBoundingClientRect();
+                var centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                var centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                
+                var worldX = (centerX - viewOffset.x) / zoomLevel;
+                var worldY = (centerY - viewOffset.y) / zoomLevel;
+                
+                var scale = dist / touchStartDist;
+                zoomLevel = Math.max(0.5, Math.min(5, zoomLevel * scale));
+                touchStartDist = dist;
+                
+                viewOffset.x = centerX - worldX * zoomLevel;
+                viewOffset.y = centerY - worldY * zoomLevel;
+                
+                draw();
+            }
+        });
+        
+        canvas.addEventListener('touchend', function(e) {
+            if(e.touches.length === 0 && dragStartPos && lastTouch) {
+                var dx = Math.abs(lastTouch.x - dragStartPos.x);
+                var dy = Math.abs(lastTouch.y - dragStartPos.y);
+                if(dx < 10 && dy < 10) {
+                    var mx = (dragStartPos.x - viewOffset.x) / zoomLevel;
+                    var my = (dragStartPos.y - viewOffset.y) / zoomLevel;
+                    var clickedPoint = findHovered(mx, my);
+                    if(clickedPoint) {
+                        showPointCard(clickedPoint);
+                        draw();
+                    }
+                }
+            }
+            isDragging = false;
+            lastTouch = null;
+            dragStartPos = null;
+        });
+    }
+
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        var cit = '@misc{priyanshu2025stratifiedllm,\n  title={{Stratified LLM Subsets: Pre-Training, Instruction-Following, and Reasoning SFT Data at 100K-1M Scale}},\n  author={Priyanshu, Aman and Vijay, Supriti},\n  year={2025},\n  howpublished={\\url{https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/}},\n  note={Available at \\url{https://huggingface.co/datasets/AmanPriyanshu/stratified-kmeans-diverse-reasoning-100K-1M}}\n}';
+        navigator.clipboard.writeText(cit).then(function() {
+            var btn = document.getElementById('copyBtn');
+            var orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(function(){btn.textContent = orig}, 2000);
+        });
+    });
+
+    var tabs = document.querySelectorAll('.nav-tab');
+    for(var i=0; i<tabs.length; i++) {
+        tabs[i].addEventListener('click', function() {
+            var all = document.querySelectorAll('.nav-tab');
+            for(var j=0; j<all.length; j++) all[j].classList.remove('active');
+            this.classList.add('active');
+            currentDataset = this.getAttribute('data-dataset');
+            selectedCluster = null;
+            closePointCard();
+            var d = getData();
+            if(d) {
+                initColors(d);
+                renderClusters();
+                draw();
+            }
+        });
+    }
+
+    window.addEventListener('load', function() {
+        initCanvas();
+        loadDataset('reasoning');
+        loadDataset('pretraining');
+        loadDataset('instruction_following');
+    });
+})();
+    </script>
+</body>
+</html>
