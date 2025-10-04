@@ -603,11 +603,11 @@
                 <div class="card">
                     <h3>Project Overview</h3>
                     <div class="card-content">
-                        This project addresses the critical challenge of creating balanced, diverse training datasets for large language models. Unlike random sampling, we use embedding-based k-means clustering with Snowflake Arctic-embed-xs to ensure maximum diversity across semantic clusters.
+                        This project provides diverse subsets from large-scale training datasets for language models. We use embedding-based k-means clustering with Snowflake Arctic-embed-xs to select samples that maximize coverage across semantic clusters.
                         <br><br>
-                        <strong>Key Innovation:</strong> Square-root balancing prevents category dominance (e.g., reducing STEM from 80% to 52% in reasoning data) while maintaining representational diversity.
+                        <strong>Approach:</strong> Re-balancing is applied to imbalanced datasets to reduce over-representation of dominant categories while maintaining coverage of underrepresented ones.
                         <br><br>
-                        <strong>Impact:</strong> Provides researchers with ready-to-use, balanced datasets across pre-training, instruction-following, and reasoning domains.
+                        <strong>Goal:</strong> Offer researchers ready-to-use diverse subsets at multiple scales (50K-1M) across pre-training, instruction-following, and reasoning domains.
                     </div>
                 </div>
 
