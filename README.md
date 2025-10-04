@@ -10,7 +10,7 @@
 
 </div>
 
-Stratified LLM Subsets delivers balanced training data at 100K-1M scales across pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning distillation (Llama-Nemotron). Embedding-based k-means clustering ensures maximum diversity while square-root balancing prevents category dominance across 5 high-quality open datasets.
+Stratified LLM Subsets delivers diverse training data at 100K-1M scales across pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning distillation (Llama-Nemotron). Embedding-based k-means clustering ensures maximum diversity while re-balancing prevents category dominance across 5 high-quality open datasets.
 
 ---
 
