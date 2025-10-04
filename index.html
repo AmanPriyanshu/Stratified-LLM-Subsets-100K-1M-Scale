@@ -1,9 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stratified LLM Subsets</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stratified LLM Subsets: Balanced Training Data at 100K-1M Scale</title>
+
+<!-- Open Graph Meta Tags (for Facebook, LinkedIn) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/">
+<meta property="og:title" content="Stratified LLM Subsets: Pre-Training, Instruction-Following, and Reasoning SFT Data">
+<meta property="og:description" content="Balanced training datasets at 100K-1M scale using embedding-based k-means clustering. Features pre-training data from FineWeb-Edu & Proof-Pile-2, instruction-following from Tulu-3 & Orca AgentInstruct, and reasoning data from Llama-Nemotron with square-root balancing that reduces STEM dominance from 80% to 52%.">
+<meta property="og:image" content="https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/example-if.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<link rel="icon" href="https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/example-if.png" type="image/png">
+<link rel="shortcut icon" href="https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/example-if.png" type="image/png">
+
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@AmanPriyanshu6">
+<meta name="twitter:site" content="@AmanPriyanshu6">
+<meta name="twitter:title" content="Stratified LLM Subsets: Balanced Training Data at 100K-1M Scale">
+<meta name="twitter:description" content="Diverse, representative subsets from large-scale training corpora using embedding-based k-means clustering. Includes pre-training (FineWeb-Edu, Proof-Pile-2), instruction-following (Tulu-3, Orca AgentInstruct), and reasoning (Llama-Nemotron) datasets with square-root balancing to prevent category dominance.">
+<meta name="twitter:image" content="https://amanpriyanshu.github.io/Stratified-LLM-Subsets-100K-1M-Scale/example-if.png">
+
+<!-- Basic Meta Tags -->
+<meta name="description" content="Stratified LLM Subsets provides balanced training data at 100K-1M scales across three domains: pre-training, instruction-following, and reasoning. Using Snowflake Arctic-embed-xs embeddings and k-means clustering with 100 iterations, this methodology ensures maximum diversity while square-root balancing prevents category dominance. Available on HuggingFace with interactive cluster visualizations.">
+<meta name="keywords" content="LLM training data, k-means clustering, stratified sampling, balanced datasets, pre-training data, instruction-following, reasoning datasets, FineWeb-Edu, Proof-Pile-2, Tulu-3, Orca AgentInstruct, Llama-Nemotron, embedding-based sampling, AI training datasets">
+<meta name="author" content="Aman Priyanshu, Supriti Vijay">
+<meta name="google-site-verification" content="xDZLinwNQBMiCCg5R11BTeESXC1DvaX-qRUd4Ee11-U" />
     <style>
         * {
             margin: 0;
